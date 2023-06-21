@@ -2,10 +2,11 @@ import os
 import json
 import requests
 
-from dotenv import load_dotenv
-
-# load the .env file
-load_dotenv()
+with open('.env', 'r') as f:
+    for line in f.readlines():
+        if line.strip():
+            key, value = line.strip().split("=", 1)
+            os.environ[key] = value
 
 
 class Weather:
@@ -42,10 +43,10 @@ class Weather:
         # Modify the current object
         trimmedRes['current'] = {
             'last_updated': jsonRes['current']['last_updated'],
-            'temp_c': jsonRes['current']['temp_c'],
+            #'temp_c': jsonRes['current']['temp_c'],
             'temp_f': jsonRes['current']['temp_f'],
             'condition': jsonRes['current']['condition'],
-            'humidity': jsonRes['current']['humidity'],
+            #'humidity': jsonRes['current']['humidity'],
             'cloud': jsonRes['current']['cloud'],
             'feelslike_c': jsonRes['current']['feelslike_c'],
             'feelslike_f': jsonRes['current']['feelslike_f']
@@ -56,21 +57,21 @@ class Weather:
             {
                 'date': jsonRes['forecast']['forecastday'][0]['date'],
                 'day': {
-                    'maxtemp_c': jsonRes['forecast']['forecastday'][0]['day']['maxtemp_c'],
+                    #'maxtemp_c': jsonRes['forecast']['forecastday'][0]['day']['maxtemp_c'],
                     'maxtemp_f': jsonRes['forecast']['forecastday'][0]['day']['maxtemp_f'],
-                    'mintemp_c': jsonRes['forecast']['forecastday'][0]['day']['mintemp_c'],
+                    #'mintemp_c': jsonRes['forecast']['forecastday'][0]['day']['mintemp_c'],
                     'mintemp_f': jsonRes['forecast']['forecastday'][0]['day']['mintemp_f'],
-                    'avgtemp_c': jsonRes['forecast']['forecastday'][0]['day']['avgtemp_c'],
+                    #'avgtemp_c': jsonRes['forecast']['forecastday'][0]['day']['avgtemp_c'],
                     'avgtemp_f': jsonRes['forecast']['forecastday'][0]['day']['avgtemp_f'],
                     'maxwind_mph': jsonRes['forecast']['forecastday'][0]['day']['maxwind_mph'],
-                    'maxwind_kph': jsonRes['forecast']['forecastday'][0]['day']['maxwind_kph'],
-                    'totalprecip_mm': jsonRes['forecast']['forecastday'][0]['day']['totalprecip_mm'],
+                    #'maxwind_kph': jsonRes['forecast']['forecastday'][0]['day']['maxwind_kph'],
+                    #'totalprecip_mm': jsonRes['forecast']['forecastday'][0]['day']['totalprecip_mm'],
                     'totalprecip_in': jsonRes['forecast']['forecastday'][0]['day']['totalprecip_in'],
                     'totalsnow_cm': jsonRes['forecast']['forecastday'][0]['day']['totalsnow_cm'],
-                    'avghumidity': jsonRes['forecast']['forecastday'][0]['day']['avghumidity'],
-                    'daily_will_it_rain': jsonRes['forecast']['forecastday'][0]['day']['daily_will_it_rain'],
+                    #'avghumidity': jsonRes['forecast']['forecastday'][0]['day']['avghumidity'],
+                    #'daily_will_it_rain': jsonRes['forecast']['forecastday'][0]['day']['daily_will_it_rain'],
                     'daily_chance_of_rain': jsonRes['forecast']['forecastday'][0]['day']['daily_chance_of_rain'],
-                    'daily_will_it_snow': jsonRes['forecast']['forecastday'][0]['day']['daily_will_it_snow'],
+                    #'daily_will_it_snow': jsonRes['forecast']['forecastday'][0]['day']['daily_will_it_snow'],
                     'daily_chance_of_snow': jsonRes['forecast']['forecastday'][0]['day']['daily_chance_of_snow'],
                     'condition': jsonRes['forecast']['forecastday'][0]['day']['condition']
                 },
