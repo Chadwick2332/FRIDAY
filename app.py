@@ -4,6 +4,7 @@ import os
 import datetime
 
 from personalities.friday import Friday
+from personalities.arcane import Arcane
 from voice import Voice
 
 with open('.env', 'r') as f:
@@ -36,9 +37,9 @@ def main():
     #     print("Setting default location to {}".format(DEFAULT_LOCATION))
     #     location = DEFAULT_LOCATION
     
-    location = DEFAULT_LOCATION
+    # location = DEFAULT_LOCATION
     
-    friday.description += "Time: {}, Location: {}".format(friday.get_local_time(), location)
+    # friday.description += "Time: {}, Location: {}".format(friday.get_local_time(), location)
 
     # Check if the OPENAI_API_KEY environment variable is set
     if os.getenv("OPENAI_API_KEY") is None:
@@ -51,10 +52,12 @@ def main():
     voice = Voice(friday.get_voice_id())
     
     voice.start()
+    
+    system_role = friday.get_system_full_prompt()
 
 
     # Initialize the chat conversation
-    messages = [{"role": "system", "content": friday.description}]
+    messages = [{"role": "system", "content": system_role}]
 
     # HANDLE LOGS
     # chats will be saved to a JSON file under logs folder with the format: logs/<date>-<time>.json
@@ -88,7 +91,7 @@ def main():
 
             messages.append({"role": "assistant", "content": answer})
 
-            print("System: " + answer)
+            print("\nSystem: " + answer + "\n")
 
             # Add the answer to the Voice queue
             voice.add_text(answer)

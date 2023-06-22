@@ -7,6 +7,9 @@ class Personality:
         self.system_name = ""
         self.description = """"""
         
+        self.systemPrompt = "You are an actor pretending to be a character named {}." \
+            "This is your template for the character that you are playing."
+        
         self.functionCalls = []
         
         openai.api_key = "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"
@@ -23,6 +26,10 @@ class Personality:
     def get_description(self):
         """Returns the description of the personality."""
         return self.description
+    
+    def get_system_full_prompt(self):
+        """Returns the full system prompt of the personality."""
+        return self.systemPrompt.format(self.system_name) + "\n\n" + self.description
     
     def get_function_calls(self):
         """Returns the function calls of the personality."""
