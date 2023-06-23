@@ -6,14 +6,14 @@ from .weather import Weather
 from .personality import Personality
 
 
-class Friday(Personality):
-    """This class will hold data related to the Friday personality."""
+class Eliza(Personality):
+    """This class will hold data related to the Eliza personality."""
     def __init__(self):
         super().__init__()
         self.voice_id = "2A0V6HLMd0rFszt9RmmW"
-        self.system_name = "Friday"
+        self.system_name = "Eliza"
         self.description = """General Description:
-            - Name: Friday
+            - Name: Eliza
             - Gender: Female
             - Age: 30
             - Role: Smartass, Comedian

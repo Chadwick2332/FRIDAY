@@ -1,9 +1,15 @@
 from typing import Any, List, Dict
 import openai
 import requests
-from secrets import DATABASE_INTERFACE_BEARER_TOKEN
-from secrets import OPENAI_API_KEY
+import os
+import json
 import logging
+
+with open('.env', 'r') as f:
+    for line in f.readlines():
+        if line.strip():
+            key, value = line.strip().split("=", 1)
+            os.environ[key] = value
 
 
 def query_database(query_prompt: str) -> Dict[str, Any]:
@@ -14,9 +20,9 @@ def query_database(query_prompt: str) -> Dict[str, Any]:
     headers = {
         "Content-Type": "application/json",
         "accept": "application/json",
-        "Authorization": f"Bearer {DATABASE_INTERFACE_BEARER_TOKEN}",
+        "Authorization": "Bearer {}".format(os.getenv("DATABASE_INTERFACE_BEARER_TOKEN")),
     }
-    data = {"queries": [{"query": query_prompt, "top_k": 5}]}
+    data = {"queries": [{"query": query_prompt, "top_k": 3}]}
 
     response = requests.post(url, json=data, headers=headers)
 
@@ -34,7 +40,7 @@ def apply_prompt_template(question: str) -> str:
         Prompt engineering could be done here to improve the result. Here I will just use a minimal example.
     """
     prompt = f"""
-        By considering above input from me, answer the question: {question}
+        Use the information from the 'memory' above to answer the question: {question}
     """
     return prompt
 
@@ -47,7 +53,7 @@ def call_chatgpt_api(user_question: str, chunks: List[str]) -> Dict[str, Any]:
     messages = list(
         map(lambda chunk: {
             "role": "user",
-            "content": chunk
+            "content": "(memory)" + chunk
         }, chunks))
     question = apply_prompt_template(user_question)
     messages.append({"role": "user", "content": question})
@@ -60,21 +66,51 @@ def call_chatgpt_api(user_question: str, chunks: List[str]) -> Dict[str, Any]:
     return response
 
 
-def ask(user_question: str) -> Dict[str, Any]:
+def ask(user_question: str, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Handle user's questions.
+    Ask a question and get a response from the GPT-3.5-turbo API.
     """
+    
+    # Add user question to messages
+    question = user_question
+    messages.append({"role": "user", "content": question})
+
+    # Call the GPT-3.5-turbo API with the modified messages
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k-0613",
+        messages=messages,
+        max_tokens=1024,
+        temperature=0.7,
+    )
+
+    # Extract the GPT-3.5-turbo response
+    return response["choices"][0]["message"]["content"]
+
+
+def ask_with_memory(user_question: str, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
     # Get chunks from database.
     chunks_response = query_database(user_question)
     chunks = []
     for result in chunks_response["results"]:
         for inner_result in result["results"]:
             chunks.append(inner_result["text"])
-    
-    logging.info("User's questions: %s", user_question)
-    logging.info("Retrieved chunks: %s", chunks)
-    
-    response = call_chatgpt_api(user_question, chunks)
-    logging.info("Response: %s", response)
-    
+
+    # Add retrieved chunks to messages
+    unique_chunks = set(chunks)
+    chunks_messages = [{"role": "system", "content": "(MEMORY)" + chunk} for chunk in unique_chunks]
+    messages.extend(chunks_messages)
+
+    # Add user question to messages
+    question = user_question
+    messages.append({"role": "user", "content": question})
+
+    # Call the GPT-3.5-turbo API with the modified messages
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k-0613",
+        messages=messages,
+        max_tokens=1024,
+        temperature=0.7,
+    )
+
+    # Extract the GPT-3.5-turbo response
     return response["choices"][0]["message"]["content"]

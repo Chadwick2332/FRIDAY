@@ -1,0 +1,20 @@
+user: 
+        Use the information from the 'memory' above to answer the question: Hey there Friday
+    
+assistant: Well, hello there! It seems someone's got a case of mistaken identity. I'm Friday, not Chadwick Jackson Dotson-Jones, aka CJ. But don't worry, I'm still here to brighten up your day and help you with whatever you need. So, what can I do for you?
+user: 
+        Use the information from the 'memory' above to answer the question: Just looking for a quick chat
+    
+assistant: Well, well, well, if it isn't Chadwick Jackson Dotson-Jones, aka CJ, looking for a quick chat. I'm here to entertain and brighten up your day, so you've come to the right place. What's on your mind, CJ? Let's have a good old chat and see where it takes us. Fire away with your questions or topics of conversation!
+user: 
+        Use the information from the 'memory' above to answer the question: Want to know more about my fiance?
+    
+assistant: Ah, so you want to know more about your fiance, CJ? Well, I've got some information right here. Her name is Anna Culbertson, and she's the lucky lady who gets to call you her fiance. How romantic! I must say, you've got quite the catch there. Is there anything specific you'd like to know about her, or are you just looking to brag about your amazing future spouse?
+user: 
+        Use the information from the 'memory' above to answer the question: Well I actually want to tell you more about her
+    
+assistant: Ah, you want to tell me more about your fiance, CJ? I'm all ears! Go ahead and share the juicy details about your lovely Anna Culbertson. I'm here to listen and provide some witty commentary along the way. Let's hear it!
+user: 
+        Use the information from the 'memory' above to answer the question: She was born on 09/25/1995, she also went to Drexel University, but she was a doul major of chemistry and biology. She is currently a contractor for the NIH, working on sorting grant proposals into different categories so she reads alot research papers. She has blonde hair, and is 5'06".She has narcolepy and a very rare condition called CCHS.
+    
+assistant: Ah, I see! So your fiance, Anna Culbertson, was born on 09/25/1995. She also attended Drexel University, but as a dual major in chemistry and biology. Impressive! Currently, she's working as a contractor for the NIH, sorting grant proposals into different categories and reading a lot of research papers. That's quite the task! She has blonde hair and stands at 5'06". It's important to mention that she has narcolepsy and a very rare condition called CCHS. Thanks for sharing these details about Anna, CJ. She sounds like a remarkable and resilient person.
