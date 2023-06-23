@@ -34,6 +34,7 @@ class Personality:
     def get_function_calls(self):
         """Returns the function calls of the personality."""
         return self.functionCalls
+    
     def get_answer(self, question, messages):
         """Returns the answer to the question asked by the user."""
         

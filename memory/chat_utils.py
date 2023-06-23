@@ -1,9 +1,15 @@
 from typing import Any, List, Dict
 import openai
 import requests
-from secrets import DATABASE_INTERFACE_BEARER_TOKEN
-from secrets import OPENAI_API_KEY
+import os
+import json
 import logging
+
+with open('.env', 'r') as f:
+    for line in f.readlines():
+        if line.strip():
+            key, value = line.strip().split("=", 1)
+            os.environ[key] = value
 
 
 def query_database(query_prompt: str) -> Dict[str, Any]:
@@ -14,7 +20,7 @@ def query_database(query_prompt: str) -> Dict[str, Any]:
     headers = {
         "Content-Type": "application/json",
         "accept": "application/json",
-        "Authorization": f"Bearer {DATABASE_INTERFACE_BEARER_TOKEN}",
+        "Authorization": "Bearer {}".format(os.getenv("DATABASE_INTERFACE_BEARER_TOKEN")),
     }
     data = {"queries": [{"query": query_prompt, "top_k": 5}]}
 
@@ -47,7 +53,7 @@ def call_chatgpt_api(user_question: str, chunks: List[str]) -> Dict[str, Any]:
     messages = list(
         map(lambda chunk: {
             "role": "user",
-            "content": chunk
+            "content": "(memory)" + chunk
         }, chunks))
     question = apply_prompt_template(user_question)
     messages.append({"role": "user", "content": question})
@@ -77,4 +83,32 @@ def ask(user_question: str) -> Dict[str, Any]:
     response = call_chatgpt_api(user_question, chunks)
     logging.info("Response: %s", response)
     
+    return response["choices"][0]["message"]["content"]
+
+
+def get_answer(user_question: str, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
+    # Get chunks from database.
+    chunks_response = query_database(user_question)
+    chunks = []
+    for result in chunks_response["results"]:
+        for inner_result in result["results"]:
+            chunks.append(inner_result["text"])
+
+    # Add retrieved chunks to messages
+    chunks_messages = [{"role": "user", "content": chunk} for chunk in chunks]
+    messages.extend(chunks_messages)
+
+    # Add user question to messages
+    question = apply_prompt_template(user_question)
+    messages.append({"role": "user", "content": question})
+
+    # Call the GPT-3.5-turbo API with the modified messages
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k-0613",
+        messages=messages,
+        max_tokens=1024,
+        temperature=0.7,
+    )
+
+    # Extract the GPT-3.5-turbo response
     return response["choices"][0]["message"]["content"]

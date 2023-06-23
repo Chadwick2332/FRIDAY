@@ -3,4 +3,6 @@
 .history/
 logs/
 
+memory/secrets.py
+
 __pycache__/
