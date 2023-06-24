@@ -14,6 +14,7 @@ with open('.env', 'r') as f:
             key, value = line.strip().split("=", 1)
             os.environ[key] = value
 
+SEARCH_TOP_K = 3
 
 def query_database(query_prompt: str) -> Dict[str, Any]:
     """
@@ -25,7 +26,7 @@ def query_database(query_prompt: str) -> Dict[str, Any]:
         "accept": "application/json",
         "Authorization": "Bearer {}".format(DATABASE_INTERFACE_BEARER_TOKEN),
     }
-    data = {"queries": [{"query": query_prompt, "top_k": 3}]}
+    data = {"queries": [{"query": query_prompt, "top_k": SEARCH_TOP_K}]}
 
     response = requests.post(url, json=data, headers=headers)
 

@@ -4,3 +4,5 @@
 logs/
 
 __pycache__/
+memory/secrets.py
+memory/test-data/Anna Converstation
