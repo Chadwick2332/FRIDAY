@@ -1,12 +1,12 @@
 from typing import Any, Dict
 import requests
 import os
-from secrets import DATABASE_INTERFACE_BEARER_TOKEN
+from .secrets import DATABASE_INTERFACE_BEARER_TOKEN
 
 SEARCH_TOP_K = 3
 
 
-def upsert_file(directory: str):
+def upsert_directory(directory: str):
     """
     Upload all files under a directory to the vector database.
     """
@@ -22,13 +22,37 @@ def upsert_file(directory: str):
             response = requests.post(url,
                                      headers=headers,
                                      files=files,
-                                     timeout=600)
+                                     timeout=2000)
             if response.status_code == 200:
                 print(filename + " uploaded successfully.")
             else:
                 print(
                     f"Error: {response.status_code} {response.content} for uploading "
                     + filename)
+                
+
+def upsert_file(file_path: str):
+    """
+    Upload one file to the vector database.
+    """
+    url = "http://localhost:8000/upsert-file"
+    headers = {"Authorization": "Bearer " + DATABASE_INTERFACE_BEARER_TOKEN}
+    file = []
+    if os.path.isfile(file_path):
+        with open(file_path, "rb") as f:
+            file_content = f.read()
+            file.append(("file", (file_path, file_content, "text/plain")))
+        response = requests.post(url,
+                                    headers=headers,
+                                    files=file,
+                                    timeout=600)
+            
+        if response.status_code == 200:
+            print(file_path + " uploaded successfully.")
+        else:
+            print(
+                f"Error: {response.status_code} {response.content} for uploading "
+                + file_path)
 
 
 def upsert(id: str, content: str):
@@ -79,4 +103,4 @@ def query_database(query_prompt: str) -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    upsert_file("test-data/")
+    upsert_directory("logs/")

@@ -1,9 +1,12 @@
 from typing import Any, List, Dict
 import openai
 import requests
+import datetime
 import os
 import json
 import logging
+
+from .secrets import DATABASE_INTERFACE_BEARER_TOKEN
 
 with open('.env', 'r') as f:
     for line in f.readlines():
@@ -20,7 +23,7 @@ def query_database(query_prompt: str) -> Dict[str, Any]:
     headers = {
         "Content-Type": "application/json",
         "accept": "application/json",
-        "Authorization": "Bearer {}".format(os.getenv("DATABASE_INTERFACE_BEARER_TOKEN")),
+        "Authorization": "Bearer {}".format(DATABASE_INTERFACE_BEARER_TOKEN),
     }
     data = {"queries": [{"query": query_prompt, "top_k": 3}]}
 
@@ -40,7 +43,7 @@ def apply_prompt_template(question: str) -> str:
         Prompt engineering could be done here to improve the result. Here I will just use a minimal example.
     """
     prompt = f"""
-        Use the information from the 'memory' above to answer the question: {question}
+        Use the information from the 'memory' above to answer the question. Do not repeat the information verbatum: {question}
     """
     return prompt
 
@@ -64,6 +67,12 @@ def call_chatgpt_api(user_question: str, chunks: List[str]) -> Dict[str, Any]:
         temperature=0.7,  # High temperature leads to a more creative response.
     )
     return response
+
+def preprend_time_to_str(s: str) -> str:
+    """
+    Prepend time to a string.
+    """
+    return f"{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')} {s}"
 
 
 def ask(user_question: str, messages: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -101,7 +110,7 @@ def ask_with_memory(user_question: str, messages: List[Dict[str, Any]]) -> Dict[
     messages.extend(chunks_messages)
 
     # Add user question to messages
-    question = user_question
+    question = apply_prompt_template(user_question)
     messages.append({"role": "user", "content": question})
 
     # Call the GPT-3.5-turbo API with the modified messages

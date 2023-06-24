@@ -6,7 +6,8 @@ import datetime
 from personalities.eliza import Eliza
 from personalities.arcane import Arcane
 
-from memory.chat_utils import ask_with_memory
+from memory.chat_utils import ask_with_memory, preprend_time_to_str
+from memory.database_utils import upsert_file
 from log import log_conversation
 from voice import Voice
 
@@ -25,6 +26,23 @@ def prompt():
 
     question = input("User: ")
     return question
+
+def print_with_color(text, color):
+    """This function will print the given text in the given color. This will be used to print the system's response in a different color."""
+    # ANSI escape sequences for different colors
+    color_codes = {
+        'red': '\033[91m',
+        'green': '\033[92m',
+        'yellow': '\033[93m',
+        'blue': '\033[94m',
+        'purple': '\033[95m',
+        'cyan': '\033[96m',
+    }
+
+    # Reset ANSI escape sequence
+    reset_code = '\033[0m'
+
+    print(color_codes[color] + text + reset_code)
 
 def main():
     """This will display the chat between the user and the system. The user will be prompted to ask a question and the system will respond.
@@ -58,29 +76,45 @@ def main():
     
     # Load the systems personality and get 
     system_role = eliza.get_system_full_prompt()
-
+    
+    print_with_color("\nPERSONALITY: " + eliza.get_system_name() + '\n', 'green')
+    print_with_color(system_role + '\n', 'green')
 
     # Initialize the chat conversation
     messages = [{"role": "system", "content": system_role}]
+    message_logs = []
             
     # MAIN LOOP
     try:
         while True:
             question = prompt()
+            question = preprend_time_to_str(question)
+            
+            #Store the question in the message logs
+            message_logs.append({"role": "user", "content": question})
+            
             answer = ask_with_memory(question, messages)
 
+            message_logs.append({"role": "assistant", "content": answer})
             messages.append({"role": "assistant", "content": answer})
 
-            print("\nSystem: " + answer + "\n")
+            print_with_color("\nAssistant: " + answer + '\n', 'cyan')
 
             # Add the answer to the Voice queue
             voice.add_text(answer)
 
     except KeyboardInterrupt:
         # On Keyboard Interrupt exit, save the messages to a text file
-        log_conversation(messages, 'logs/', 'txt')
+        filename = log_conversation(message_logs, 'logs/', 'txt')
         
-        print("\nConversation saved to {} folder.".format('logs/'))
+        # Prompt the user to save the conversation to the database
+        if input("Would you like to save this conversation to the database? (y/n): ").lower() == 'y':
+            try:
+                upsert_file('logs/' + filename)
+            except:
+                print("Failed to save conversation to database.")
+            
+            print("\nConversation saved to {} folder.".format('logs/'))
 
 
 if __name__ == "__main__":
