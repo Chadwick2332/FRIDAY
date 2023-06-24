@@ -3,6 +3,6 @@
 .history/
 logs/
 
-memory/secrets.py
-
 __pycache__/
+memory/secrets.py
+memory/test-data/Anna Converstation

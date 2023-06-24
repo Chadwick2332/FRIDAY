@@ -8,7 +8,12 @@ class Personality:
         self.description = """"""
         
         self.systemPrompt = "You are an actor pretending to be a character named {}." \
-            "This is your template for the character that you are playing."
+            "Above is your template for the character that you are playing. When you " \
+            "see a response that starts with '(MEMORY)', this is information from your " \
+            "memory, that may or may not be useful. You can use this information to " \
+            "help you respond to the user. Do not repeat the information verbatim, " \
+            "but paraphrase it and only include relevant information."
+            
         
         self.functionCalls = []
         
@@ -34,50 +39,3 @@ class Personality:
     def get_function_calls(self):
         """Returns the function calls of the personality."""
         return self.functionCalls
-    
-    def get_answer(self, question, messages):
-        """Returns the answer to the question asked by the user."""
-        
-        messages.append({"role": "user", "content": question})
-
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo-0613",
-            messages=messages,
-            functions=self.functionCalls,
-        )
-
-        response_message = response["choices"][0]["message"]
-
-        # Check if AI wants to call a function
-        if response_message.get("function_call"):
-            function_name = response_message["function_call"]["name"]
-            function_args = json.loads(
-                response_message["function_call"]["arguments"])
-
-            # only one function in this example, but you can have multiple
-            available_functions = {
-                "get_weather": self.get_weather,
-                "get_local_time": self.get_local_time
-            }
-            function_to_call = available_functions[function_name]
-
-            # Call the function
-            function_response = function_to_call(**function_args)
-
-            # Continue conversation with function response
-            messages.append(response_message)
-            messages.append(
-                {
-                    "role": "function",
-                    "name": function_name,
-                    "content": function_response,
-                }
-            )
-
-            second_response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo-16k-0613",
-                messages=messages,
-            )
-            return second_response["choices"][0]["message"]["content"], messages
-
-        return response_message["content"], messages
